@@ -37,7 +37,7 @@ Da parte 1 até a parte 3 iremos ver o link da Oficina durante a SeCS...
 
 Uma das principais caracteristicas do R são os seus pacotes, isto é, um conjunto de códigos, dados, documentações e testes que auxiliam o usuário nas suas tarefas.
 
-<center> ![Quantidade de pacotes no CRAN](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pacotesnoR.jpeg) </center>
+<center> ![Quantidade de pacotes no CRAN](imgOficina/pacotesnoR.jpeg) </center>
 
 \n
 
