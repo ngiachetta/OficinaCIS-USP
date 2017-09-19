@@ -37,7 +37,7 @@ Da parte 1 até a parte 3 iremos ver o link da Oficina durante a SeCS...
 
 Uma das principais caracteristicas do R são os seus pacotes, isto é, um conjunto de códigos, dados, documentações e testes que auxiliam o usuário nas suas tarefas.
 
-<center> ![Quantidade de pacotes no CRAN](pacotesnoR.jpeg) </center>
+<center> ![Quantidade de pacotes no CRAN](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pacotesnoR.jpeg) </center>
 
 \n
 
@@ -75,7 +75,7 @@ library(magrittr)
 
 #### Operador pipe `%>%`
 
-<center>![Pipe](imgOficina/pipe.png)</center>
+<center>![Pipe](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pacotesnoR.jpeg)</center>
 
 ##### A vida antes do `%>%`
 
@@ -188,7 +188,7 @@ O Single Brackets retorna uma lista dos elementos selecionados, enquanto o Doubl
 
 #### `map()`
 
-<center> ![Como funciona o map](map.png)</center>
+<center> ![Como funciona o map](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/map.png)</center>
 
 ```{r}
 # Qual é o numero de caracteres presente no nome dos personagens de GOT?
@@ -243,7 +243,7 @@ Existem algumas formas de obter as tags dentro de um HTML, entre elas temos o CS
 
 O xpath é essencial para que possamos extrair partes de documentos HTML/XML, ele nada mais é do que uma linguagem de consulta (query language).
 
-<center> ![Quantidade de pacotes no CRAN](Xpath2.png) </center>
+<center> ![Quantidade de pacotes no CRAN](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/Xpath2.png) </center>
 
 ## 7. Web Scraping com rvest
 
