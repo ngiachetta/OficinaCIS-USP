@@ -37,7 +37,7 @@ Da parte 1 até a parte 3 iremos ver o link da Oficina durante a SeCS...
 
 Uma das principais caracteristicas do R são os seus pacotes, isto é, um conjunto de códigos, dados, documentações e testes que auxiliam o usuário nas suas tarefas.
 
-![](OficinaCIS-USP/imgOficina/pacotesnoR.jpeg) 
+![](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pacotesnoR.jpeg) 
 
 \n
 
@@ -75,7 +75,7 @@ library(magrittr)
 
 #### Operador pipe `%>%`
 
-![Pipe](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pacotesnoR.jpeg)
+![Pipe](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/pipe.png)
 
 ##### A vida antes do `%>%`
 
