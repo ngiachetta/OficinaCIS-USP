@@ -243,7 +243,7 @@ Existem algumas formas de obter as tags dentro de um HTML, entre elas temos o CS
 
 O xpath é essencial para que possamos extrair partes de documentos HTML/XML, ele nada mais é do que uma linguagem de consulta (query language).
 
-<center> ![Quantidade de pacotes no CRAN](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/Xpath2.png) </center>
+<center> ![Quantidade de pacotes no CRAN](https://github.com/ngiachetta/OficinaCIS-USP/blob/master/imgOficina/Xpath2.png?raw=true) </center>
 
 ## 7. Web Scraping com rvest
 
