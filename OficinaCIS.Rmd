@@ -1,0 +1,287 @@
+---
+title: "Oficina de Web Scraping (CIS-USP)"
+author: "Nathan Giachetta"
+date: "19, 21 e 28 de setembro de 2017"
+output: html_document
+---
+
+Esta oficina servirá como forma de capacitar os membros do Consórcio de Informações Sociais da USP (CIS) a realizarem Web Scraping com R.
+
+Antes, um aviso:
+
+- A forma como o  Scraping é realizado pode variar dependendo de como o site de interesse é estruturado.
+
+Como nem todos possuem conhecimento de programação em R darei uma breve introdução, destacando aspectos essenciais para realização do web scraping. Para a introdução ao R, iremos um material utilizado na Oficina de Introdução ao R realizada durante a Semana de Ciências Sociais $\rightarrow$ [Clique aqui](https://github.com/ngiachetta/oficina_R_2017/blob/master/Apresentacao/OficinaR_rmarkdown.Rmd).
+
+Nesta oficina abordaremos os seguintes tópicos:
+
+1. Tipos de variáveis;
+
+2. Estrutura dos dados;
+
+3. Controladores de Fluxos (`if` e `for`);
+
+4. Pacotes: `magrittr` & `purrr`;
+
+5. Operador pipe `%>%`;
+
+6. Estrutura HTML;
+
+7. Web Scraping com rvest.
+
+Da parte 1 até a parte 3 iremos ver o link da Oficina durante a SeCS...
+
+## 4. Pacotes
+
+### O que é um pacote?
+
+Uma das principais caracteristicas do R são os seus pacotes, isto é, um conjunto de códigos, dados, documentações e testes que auxiliam o usuário nas suas tarefas.
+
+<center> ![Quantidade de pacotes no CRAN](pacotesnoR.jpeg) </center>
+
+\n
+
+Para instalar um pacote no R devemos utilizar `install.packages("<nome do pacote>")`. Após a instalação devemos utilizar `library(<nome do pacote>)` para que possamos habilitar as funcionalidades da biblioteca instalada.
+
+- Instalando o pacote:
+```{r eval=FALSE}
+install.packages("beepr")
+```
+
+- Habilitando o pacote:
+```{r}
+library(beepr)
+```
+
+Para utilizarmos as funções podemos chamar o pacote seguido de `::`, como por exemplo, `beepr::` ou apenas digitar a função desejada.
+
+```{r}
+beepr::beep(8)
+
+#ou
+
+beep(8)
+```
+
+### `magrittr::` e o operador Pipe.
+
+> "The magrittr package offers a set of operators which make your code more readable" (tidyverse.org)
+
+```{r}
+#install.package("magrittr")
+
+library(magrittr)
+```
+
+#### Operador pipe `%>%`
+
+<center>![Pipe](imgOficina/pipe.png)</center>
+
+##### A vida antes do `%>%`
+
+Antes de explicarmos como o pipe pode nos ajudar, vamos tentar entender o que o código abaixo faz...
+
+```{r}
+library(rvest)
+
+url <- "https://www.r-project.org/about.html"
+
+html_text(html_nodes(read_html(url),xpath = '//p'), trim = T)[[4]]
+```
+
+Um pouco confuso, não? Para sabermos o que este código está executando, precisamos ler de dentro para fora, então:
+
+1. Aplicamos a função `read_html()` no objeto url;
+
+2. Aplicamos a função `html_nodes()` no resultado do Passo 1 utilizando como parâmetro da função o argumento `xpath=`;
+
+3. Aplicamos a função `html_text()` utilizando o argumento `trim`;
+
+4. Por fim, localizamos o quarto elemento do resultado gerado pela função do Passo 3.
+
+Percebam que para nós seria melhor se escrevessemos o código da forma como descrevemos acima, pareceria mais intuitivo e não teriamos que perder muito tempo para entender cada um dos passos. Para isso podemos utilizar o pipe.
+
+O pipe (`%>%`) faz parte do pacote `magrittr` que tem como função diminuir o tempo de desenvolvimento e trazer mais legibilidade para o código.
+
+Basicamente o Pipe:
+
+> x %>% funcao1() %>% funcao2() %>% ...
+
+##### A vida depois do `%>%`
+
+Portanto, com o pipe a função que vimos anteriormente ficaria assim:
+
+```{r}
+url %>%                           # Objeto de referencia
+  read_html %>%                   # Funcao
+  html_nodes(xpath = '//p') %>%   # Funcao
+  html_text(trim = T) %>%         # Funcao
+  .[[4]]                          # Indexador
+```
+
+Percebam que para executar o comando não precisamos colocar os paratenses na função, mas isso não faz muita diferença. O Pipe pode não parecer útil quando usamos uma ou duas funções, porém caso utilizemos diversas funções em um único comando, ele será extremamente necessário.
+
+Vamos então tentar entender o que a função abaixo faz:
+
+```{r}
+#install.packages("ggplot2movies")
+#install.packages("dplyr")
+library(ggplot2movies)
+library(dplyr)
+
+movies %>% 
+  filter(year == 1971 | year == 1988 | year == 2000 | year == 2004, 
+         rating >= 6.0, 
+         is.na(budget) == F,
+         votes >= 1000) %>% 
+  rename(ano = year,
+         duracao = length,
+         orcamento = budget,
+         nota = rating,
+         votos = votes) %>% 
+  group_by(ano) %>% 
+  summarise(length = sum(duracao),
+            budget = mean(orcamento),
+            rating = mean(nota),
+            votes = sum(votos))
+```
+
+
+### `purrr::`
+
+> "For loops are not as important in R as they are in other languages because R is a functional programming language. This means that it’s possible to wrap up for loops in a function, and call that function instead of using the for loop directly." (WICKHAM & GROLEMUND, 2016).
+
+Para esta seção, eu me inspirei na apresentação da Charlotte Wickham na rstudio::conf2017
+
+Existem muitas formas para resolvermos os problemas de `for $__$ do $__$`, podemos usar o for loops, ou a família dos apply. Sobre este últumo, nós não veremos, pois o `purrr::` vai resolver nossos problemas de forma muito mais consistente.
+
+Vamos instalar o `purrr::` e `repurrrsive::`, este último tem algumas listas para vermos como o pacote funciona.
+
+```{r}
+library(repurrrsive)
+library(purrr)
+```
+
+Espero que vocês gostem de Game of Thrones...
+
+```{r}
+got_chars
+```
+
+Quantos elementos eu tenho na lista `got_chars`? E quem é a primeira pessoa da nossa lista?
+
+```{r}
+length(got_chars)
+
+got_chars[[1]]
+```
+
+Aproveitando, qual a diferença entre `got_chars[1]` e `got_chars[[1]]`?
+
+```{r}
+got_chars[1]
+
+got_chars[[1]]
+```
+
+O Single Brackets retorna uma lista dos elementos selecionados, enquanto o Double Brackets retorna cada elemento da lista.
+
+#### `map()`
+
+<center> ![Como funciona o map](map.png)</center>
+
+```{r}
+# Qual é o numero de caracteres presente no nome dos personagens de GOT?
+got1 <- got_chars[[1]]
+
+nchar(got1$name)
+
+for (i in seq_along(got_chars)){
+  print(nchar(got_chars[[i]]$name))
+}
+
+map(got_chars, ~nchar(.x$name))
+```
+
+## 6. Estrutura HTML
+
+### HTML: HyperText Markup Language
+
+O HTML é uma linguagem de marcação criada entre 1989/1990 que é utilizada no front-end de praticamente todos os site que visitamos, ele serve para informar o tipo de elemento do texto, mais especificamente o HTML _define a estrutura da webpage_. 
+
+Dois pontos que podemos destacar sobre o HTML é que:
+
+1. Ele tem uma versão interpretada, comum em todos os sites.
+
+2. E por trás desta versão interpretada temos um _source code_.
+
+O _source code_ do HTML apresenta como a linguagem se estrutura, para nós, é importante saber que:
+
+- HTML tem tags e elas definem os trechos do texto que serão estilizados;
+
+- Tags podem ter atributos;  
+
+- Podem existir tags conjuntas.
+
+```{r, echo=F}
+# <title>Portal Transparencia</title>
+```
+
+```{r, echo=F}
+# <a href = "http://www.portaltransparencia.gov.br/"> Link legal </a>
+```
+
+```{r, echo=F}
+#<span> O Portal da Transparência <em> é legal</em> clique no <a href = "http://www.portaltransparencia.gov.br/> link </a></span> 
+```
+
+### Xpath
+
+Existem algumas formas de obter as tags dentro de um HTML, entre elas temos o CSS e o Xpath
+
+- Xpath vai nos ajudar muito!
+
+O xpath é essencial para que possamos extrair partes de documentos HTML/XML, ele nada mais é do que uma linguagem de consulta (query language).
+
+<center> ![Quantidade de pacotes no CRAN](Xpath2.png) </center>
+
+## 7. Web Scraping com rvest
+
+### O que é web scraping
+
+> "Qualquer conteúdo que consegue ser visto em uma pagína da web pode ser coletado" (Hartley Brody)
+
+Mas devemos saber que nem tudo que pode ser coletado é importante, precisamos ter perguntas! Coletar informações só por coletar só vai ocupar a memória do seu computador. Além disso, devemos saber se a página que queremos coletar tem informações públicas, não queremos nenhum problema, não é mesmo?
+
+Então, para realizarmos um Web Scraping, é interessante:
+
+0. Esta informação pode ser extraída de uma forma mais fácil?
+
+> As vezes o Web Scraping pode ser muito dificil e trabalhoso, cabe verificar então se a informação não pode ser extraída de uma forma diferente, como por exemplo, download de arquivos .csv 
+
+1. Ter um pergunta
+
+> "Qual a diferença dos discursos da Dilma e do Temer? Quais são as notícias mais recentes sobre um determinado termo?"
+
+2. Saber quais as informações relevantes para responder a sua pergunta?
+
+> Se a nossa pergunta for sobre saúde, não necessariamente vamos querer informações sobre astronomia.
+
+3. Como a informação de interesse está localizada na pagína da web?
+
+> Ela está em uma tabela? Está desestruturada? Em variás pagínas?
+
+Poderiamos colocar mais e mais tópicos sobre como fazer um Web Scraping...
+
+Portanto, Web scraping nada mais é que a raspagem de dados da internet, isto é, extrair informações de um site, sejam estas informações estruturadas ou não. Talvez a principal mensagem que devemos ter em mente é: Cada caso é um caso! Isso significa que não vamos sair daqui sabendo a raspar todo tipo de informação da internet, mas pelo menos vamos ter a noção de como começar, o resto o Google pode ajudar (é sério!).
+
+Existem alguns pacotes no R para extraírmos informações da internet, como por exemplo, `xml2` e `httr`. Iremos utilizar o `rvest`, que para além de ser um excelente pacote faz parte do conjunto de pacotes chamados `tidyverse`.
+
+Como nós vimos, para acessarmos o source code do html devemos inspecionar a pagina de interesse e ver como a informação está estruturada. Vamos aprofundar isto com os estudos de caso:
+
+### Caso 1: O Portal da Transparência
+
+### Caso 2: Os discursos da Dilma/ Temer
+
+### Caso 3: Estadão
+

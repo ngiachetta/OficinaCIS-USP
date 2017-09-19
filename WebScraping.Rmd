@@ -1,0 +1,213 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Caso 1: Portal da Transparência
+
+```{r message = FALSE}
+# Pacotes
+library(rvest)
+library(dplyr)
+library(stringr)
+library(purrr)
+library(ggplot2)
+library(ggthemes)
+```
+
+## Objetivo: Coletar informações acerca do repasse da União para os Estados e Municípios.
+
+Nosso objetivo é extrair dados disponíveis no portal da transparência, especificamente iremos coletar dados de 2004 até 2017. Se olharmos no site, podemos observar que temos a possibilidade de baixar os dados disponíveis em um arquivo excel, mas nós não vamos fazer isso porque: (1) Demora muito e (2) é chato.
+
+Vamos dar uma olhada em alguns links do site:
+
+```{r}
+"http://www.portaldatransparencia.gov.br/PortalTransparenciaListaUFs.asp?Exercicio=2007&Pagina=1"
+
+"http://www.portaldatransparencia.gov.br/PortalTransparenciaListaUFs.asp?Exercicio=2008&Pagina=1"
+
+"http://www.portaldatransparencia.gov.br/PortalTransparenciaListaUFs.asp?Exercicio=2007&Pagina=2"
+```
+
+Vocês conseguem perceber algum padrão? Qual?
+
+O link segue dois tipos de padrões:
+
+- `Exercicio=<ANO>`
+
+- `Pagina=<Numero da pagina>`
+
+Isso significa que dependendo do valor que nós colocamos no link, seremos direcionados para uma pagina diferente. Se nós quisessemos verificar o ano de 2010 na pagína 1, como ficaria?
+
+Então precisamos encontrar uma forma de mapear todos esses links automaticamente, pois se nós formos fazer isso de forma manual demoraremos muito.
+
+Vamos criar uma lista com todas as combinações de url:
+
+```{r}
+# Listas com os links
+anos <- 2004:2017 # Vetor dos anos
+paginas <- 1:2 # Vetor das paginas
+url <- "http://www.portaldatransparencia.gov.br/PortalTransparenciaListaUFs.asp?Exercicio=ANO&Pagina=PAG" # Link
+```
+
+Para juntarmos todas as urls temos que substituir os campos ANO e PAG por seus correspondentes. Podemos fazer isso de diversas formas:
+
+```{r}
+# 1
+url.1 <- list()
+for (i in 1:length(anos)){
+  url.1[[i]] <- gsub("ANO", anos[i], url)
+}
+for (i in 1:length(anos)){
+  url.1[[i]][2] <- url.1[[i]][1] 
+}
+for (i in 1:length(anos)){
+  for (j in 1:length(paginas)){
+    url.1[[i]][j] <- gsub("PAG", paginas[j], url.1[[i]][j])
+  }
+}
+url.1
+
+# 2
+url.ano <- url %>% map(str_replace, "ANO", as.character(anos)) %>% 
+  pmap(str_replace, "PAG", as.character(paginas))
+url.ano
+```
+
+Vamos raspar a pagína!
+
+```{r}
+estados <- list()
+for (i in 1:14){
+  ano <- rep(anos[i], 27) # Vetor para mapear os anos
+  pag1 <-  url.ano[[i]][1] %>% read_html() %>% html_table() %>% .[[2]]
+  pag2 <-  url.ano[[i]][2] %>% read_html() %>% html_table() %>% .[[2]]
+  tabela <- bind_rows(pag1, pag2)
+  tabela <- tabela %>% filter(!(Estado %in% c("TRANSFERÊNCIAS AO EXTERIOR","TRANSFERÊNCIAS A ORGANISMOS MULTIGOVERNAMENTAIS")))
+  estados[[i]] <- bind_cols(data.frame(ano),tabela)
+}
+
+estados <- map_df(estados, bind_rows)
+head(estados)
+```
+
+Perfeito! Agora obtemos os dados do portal transparência, imagina se tivessemos que fazer tudo isso na "mão"?
+
+```{r}
+# Visualizando os dados
+estados$GovdoEstado<- as.numeric(map_chr(estados$`Governo do Estado (R$)`, parse_number,locale = locale(grouping_mark = ".")))
+
+estados %>% filter(Estado %in% c("SÃO PAULO", "RIO DE JANEIRO")) %>% select(ano, Estado, GovdoEstado) %>% ggplot(.,aes(x = ano, y = GovdoEstado)) + geom_line(aes(color=Estado), size = 1) + theme_fivethirtyeight() +scale_x_continuous(breaks = seq(2004,2017,1)) + ggtitle(label = "Repasse da União para RJ e SP")
+```
+
+E se nós quisermos incrementar mais informações na nossa tabela? Que tal a sigla de cada Estado?
+
+```{r}
+url <- "https://pt.wikipedia.org/wiki/Unidades_federativas_do_Brasil" # Url
+
+sigla <- url %>% read_html() %>% html_table(fill = T) %>% .[[1]] %>% select("Estado", "Abreviação") %>% rename("sigla" = "Abreviação") # Scraping
+
+sigla$Estado <- map_chr(sigla$Estado, tolower) # Transformar as siglas em letras minusculas
+
+estados <- estados %>%  arrange(Estado)
+estados$Estado <- map_chr(estados$Estado, tolower)
+
+# Join
+estados <- left_join(x= estados ,y= sigla, by= "Estado")
+```
+\n
+```{r}
+head(estados)
+```
+
+# Caso 2: Discursos do Temer e da Dilma
+
+Objetivo: Extrair todos os discursos da Dilma e do Temer presentes no site do Planalto
+
+Neste segundo caso vamos trabalhar com `xpath`!
+
+```{r}
+# Dilma
+dilma <- "http://www2.planalto.gov.br/acompanhe-o-planalto/discursos/discursos?b_start:int=PAGINA" # Certifiquem-se que é http e não https
+
+pag.dilma <- seq(0, 960, 30)
+
+urls.dilma <- dilma %>% map(str_replace, "PAGINA", as.character(pag.dilma))
+
+title <- c()
+link_discourse <- c()
+discourse <- c()
+date <- c()
+
+for(i in 1:33){
+  title <- title %>% append(urls.dilma[[1]][i] %>% read_html() %>% html_nodes(xpath = '//h2/a[@class="summary url"]') %>% html_text())
+  link_discourse <- link_discourse %>% append(urls.dilma[[1]][i] %>% read_html() %>% html_nodes(xpath = '//h2/a[@class="summary url"]') %>% html_attr("href"))
+  Sys.sleep(90)
+}
+
+for (l in 1:930){
+  date <- date %>% append(link_discourse[l] %>% read_html() %>% html_nodes(xpath = '//*[@id="plone-document-byline"]/span[3]/text()') %>% html_text() %>% str_c(collapse = " ") %>% str_trim())
+  discourse <- discourse %>% append(link_discourse[l] %>% read_html() %>% html_nodes(xpath = '//div/div/p') %>% html_text() %>% str_c(collapse = " ") %>% str_trim())
+}
+dilma <- data.frame(date, title, discourse, link_discourse, who = rep("Dilma", 930))
+```
+
+Vamos tentar com os discursos do Temer também?
+
+```{r}
+# Temer
+temer <- "http://www2.planalto.gov.br/acompanhe-planalto/discursos?b_start:int=PAGINA"
+
+pag.temer <- seq(0, 240, 30)
+
+urls.temer <- temer %>% map(str_replace, "PAGINA", as.character(pag.temer))
+
+title <- c()
+link_discourse <- c()
+discourse <- c()
+date <- c()
+
+for (i in 1:3){
+  title <- title %>% append(urls.temer[[1]][i] %>% read_html() %>% html_nodes(xpath = '//h2/a[@class="summary url"]') %>% html_text())
+  link_discourse <- link_discourse %>% append(urls.temer[[1]][i] %>% read_html() %>% html_nodes(xpath = '//h2/a[@class="summary url"]') %>% html_attr("href"))
+}
+```
+
+Caso 3: Noticias do Estadão
+
+```{r}
+url_estadao <- "http://busca.estadao.com.br/modulos/busca-resultado?modulo=busca-resultado&config[busca][page]=PAGINAS&config[busca][params]=tipo_conteudo=Todos&quando=&q=BUSCATERMO&ajax=1"
+
+pag <- 1:20
+termo <- "Lula"
+
+url_estadao <- url_estadao %>% map(str_replace, "PAGINAS", as.character(pag)) %>% 
+  pmap(str_replace, "BUSCATERMO", as.character(termo)) %>% 
+  unlist()
+
+## Ler os htmls
+url_estadao[2] %>% read_html() %>% html_nodes(xpath = '//div/h4') %>% html_text() # Topicos
+
+url_estadao[2] %>% read_html() %>% html_nodes(xpath = '//section//a[@class="link-title"]/h3[@class="third"]') %>% html_text() # Titulo
+
+url_estadao[2] %>% read_html() %>% html_nodes(xpath = '//span[@class="data-posts"]') %>% html_text() # Data
+
+url_estadao[2] %>% read_html() %>% html_nodes(xpath = '//section//a[@class="link-title"]') %>% html_attr("href") # Link 
+
+list_estadao <- list(topics = NULL, 
+                     title = NULL,
+                     date = NULL,
+                     link = NULL)
+for(i in seq_along(url_estadao)){
+  list_estadao$topics[i] <- url_estadao[i] %>% read_html() %>% html_nodes(xpath = '//div/h4') %>% html_text() 
+  list_estadao$title[i] <- url_estadao[i] %>% read_html() %>% html_nodes(xpath = '//section//a[@class="link-title"]/h3[@class="third"]') %>% html_text()
+  list_estadao$date[i] <- url_estadao[i] %>% read_html() %>% html_nodes(xpath = '//span[@class="data-posts"]') %>% html_text() 
+  list_estadao$link[i] <- url_estadao[i] %>% read_html() %>% html_nodes(xpath = '//section//a[@class="link-title"]') %>% html_attr("href")
+}
+
+df_estadao <- as.data.frame(list_estadao)
+```
+
+
+
+
