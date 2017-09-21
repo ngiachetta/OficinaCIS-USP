@@ -75,7 +75,7 @@ lista <- list(vetor = v,
 
 > `is.vector(1:3)`
 
-Portanto, construma um código capaz de verificar se os elementos da lista são vetores ou não. Para isso use o código, veja primeiro o que o código abaixo faz:
+Portanto, construa um código capaz de verificar se os elementos da lista são vetores ou não. Para isso use o código, veja primeiro o que o código abaixo faz:
 - `lista[[sample(1:4,1)]]`  
 
 Percebeu que este código gera aleatóriamente um indexador na lista, isto é, ele gera aleatóriamente `lista[[i]]` sendo que i varia entre 1 e 4.
