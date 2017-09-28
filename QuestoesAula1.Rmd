@@ -96,3 +96,5 @@ Dicas:
 
 - Pense em como este regex pode te ajudar: "[0-9]+"
 
+- Construa duas funções (opcional)
+
