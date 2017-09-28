@@ -84,5 +84,15 @@ Vamos pensar no seguinte problema:
 
 Um município licalizado na cidade X tem 1000 habitantes e no mês anterior ocorreram as eleições para representante do município. Quatro candadtos concorreram e o jornal da cidade divulgou o total de votos recebidos por eles da seguinte forma:
 
-> "Em entrevista ao Jornal da cidade X:\nCantidato 1: Eu recebi 200 votos\nCanditado 2: Eu recebi 300 votos\nCandidato 3: Eu recebi 250 votos\n Candidato 4: Não recebi nenhum voto"
+> "Em entrevista ao Jornal da cidade X: Cantidato 1: Eu recebi 200 votos Canditado 2: Eu recebi 300 votos Candidato 3: Eu recebi 250 votos Candidato 4: Não recebi nenhum voto"
+
+O jornal então pediu ajuda para alguns pesquisadores. Eles queriam saber o quanto o total de votos representam sobre a população total e qual a diferença percentual do total de votantes do ano em questão para os anos de 2015 (80%), 204(60.9%) 2013 (65%) e 2012 (92.3%).
+
+Dicas:
+
+- Use os pacotes stringr e purrr
+
+- use o pipe
+
+- Pense em como este regex pode te ajudar: "[0-9]+"
 
