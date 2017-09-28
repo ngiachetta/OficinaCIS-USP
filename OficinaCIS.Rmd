@@ -145,7 +145,37 @@ movies %>%
             rating = mean(nota),
             votes = sum(votos))
 ```
+### `::stringr`
 
+```{r}
+library(stringr)
+```
+
+Quando fazemos coleta de dados na internet, estes dados podem conter textos e normalmente eles costumam dar um pouco de trabalho. Uma das formas de manipularmos variáveis textos é com `stringr`.
+
+```{r}
+# Vamos criar um vetor
+texto <- c("Banco de Dados", "USP", "FfLcH    ", "   vaMOS USAr o R")
+
+# O que acontece se utilizarmos a funcao lenght?
+length(texto)
+
+# E se nós quisermos a quantidade de caracteres por elemento?
+stringr::str_length(texto)
+
+# O primeiro elemento e o segundo se chamam "Banco de Dados" e "USP", respectivamente. Como podemos fazer par ajuntá-los assim: "Banco de Dados, USP"
+stringr::str_c(texto[1], texto[2], sep = ", ")
+
+# Queremos que todos os elementos fiquem em caixa alta, como podemos fazer? e em caixa baixa?
+stringr::str_to_upper(texto)
+stringr::str_to_lower(texto)
+
+# Percebam que alguns elementos tem uma quantidade elevada de espaços, como nós podemos resolver?
+str_trim(texto)
+
+# E se por acaso quisermos substituir todos os S em caixa alta por "."?
+str_replace(texto, "a", ".")
+```
 
 ### `purrr::`
 
