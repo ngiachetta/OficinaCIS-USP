@@ -80,5 +80,9 @@ Portanto, construa um código capaz de verificar se os elementos da lista são v
 
 Percebeu que este código gera aleatóriamente um indexador na lista, isto é, ele gera aleatóriamente `lista[[i]]` sendo que i varia entre 1 e 4.
 
+Vamos pensar no seguinte problema:
 
+Um município licalizado na cidade X tem 1000 habitantes e no mês anterior ocorreram as eleições para representante do município. Quatro candadtos concorreram e o jornal da cidade divulgou o total de votos recebidos por eles da seguinte forma:
+
+> "Em entrevista ao Jornal da cidade X:\nCantidato 1: Eu recebi 200 votos\nCanditado 2: Eu recebi 300 votos\nCandidato 3: Eu recebi 250 votos\n Candidato 4: Não recebi nenhum voto"
 
