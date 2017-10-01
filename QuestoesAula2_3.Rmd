@@ -1,0 +1,94 @@
+---
+title: "QuestoesAula2-3"
+output: html_notebook
+---
+
+Nos exercícios a seguir iremos utilizar os pacotes `stringr`, `purrr` e `repurrrsive`.
+
+```{r}
+library(stringr)
+library(purrr)
+library(repurrrsive)
+```
+
+
+# Ex. 1
+
+Dentro do pacote `stringr` temos um vetor chamado "sentences". 
+
+1. Obtenha do primeiro até o centésimo vetor e atribuia ao objeto "sentencas". 
+
+2. Obtenha o tamanho de cada vetor. Por tamanho quero dizer o total de caractéres.
+
+3. Concatene cada sentença "i" com a sentença "i + 1", como por exemplo,
+
+|Sentença a                               | Sentença b                                |Sentenca a + Sentenca b                |
+|:----------------------------------------|------------------------------------------:|:-------------------------------------:|
+|The birch canoe slid on the smooth planks|Glue the sheet to the dark blue background.|The birch canoe... Glue the sheet to...|
+|It's easy to tell the depth of a well.   |These days a chicken leg is a rare dish.   |It's easy to tell... These days a...   |
+|...                                      |...                                        |... + ...                              |
+
+4. Perceba que em cada elemento do vetor sentencas, a terminação deles é com o ".". Substitua por "?". DIca: Utilize a expressão regex "\\."
+para localizar o padrão.
+
+5.Dado o link: "www.siteLegal.com.br/dbHAPF76alnfNG&pagina=1&ano=2000&bfFdvr%5fb&profissao=professor". Localize os possíveis padrões e substitua-os por palavras-chaves.
+
+6. O site pode receber os seguintes valores como argumento, localize os corretos para cada caso e crie links para dois argumentos. USE O `purrr`, sobretudo, o `map` e o `pmap`. Dica: Reveja os slides da ![Charlotte Wickham](https://github.com/rstudio/rstudio-conf/tree/master/2017/Happy_R_Users_Purrr-Charlotte_Wickham)
+
+|argumento_valores1|argumento_valores2|argumento_valores3|
+|------------------|------------------|------------------|
+|2000              |1                 |professor         |
+|2002              |2                 |garçom            |
+|2004              |                  |cientista         |
+|                  |                  |programador       |
+
+7. Veja o arquivo chamado "Aula2_3.html" e atente-se para as tags e atributos de cada parte do documento. Como você coletaria as tags do documento?
+
+```{r}
+# 1
+sentencas <- stringr::sentences[1:100]
+
+# 2
+tamanho1 <- list()
+for (i in 1:length(sentencas)){
+  tamanho1[[i]] <- str_length(sentencas[i])
+}
+
+tamanho2 <- map(sentencas, str_length)
+
+# 3
+par <- c()
+impar <- c()
+for (i in 1:length(sentencas)){
+  if(i%%2 == 0){
+    par <- c(par, sentencas[i])
+  }else{
+    impar <- c(impar, sentencas[i])
+  }
+}
+
+sentencas_c <- list()
+for (i in 1:length(par)){ # Pode ser também impar
+  sentencas_c[[i]] <- str_c(impar[i], par[i], sep = " ")  
+}
+
+# 4
+str_replace(sentencas, "\\.", "?")
+
+# 5
+## pagina=PAGINAS, ano=ANOS, profissao=PROFISSAO
+
+# 6
+url <- "www.siteLegal.com.br/dbHAPF76alnfNG&pagina=PAG&ano=ANO&bfFdvr%5fb&profissao=PROF"
+
+pag <- 1:2
+
+ano <- c(2000, 2002, 2004)
+
+prof <- c("professor", "garçom", "cientista", "programador")
+
+map(url, str_replace, "PAG", as.character(pag)) %>% 
+  pmap(str_replace, "ANO", as.character(ano)) %>% unlist() %>% 
+  map(str_replace, "PROF", prof) %>% unlist()
+```
+
